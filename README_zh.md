@@ -4,8 +4,11 @@
 
 用于构建 Turboism 插件的独立 Gradle 工程模板，**无需克隆或编译 Turboism 主仓库**。只需运行一次初始化脚本即可自动下载并校验 SDK 与 `@SubscribeEvent` 注解处理器、配置插件元数据，并打包出可直接放入 Turboism 安装目录的插件 JAR。
 
-插件 SDK API 范围为 `[0.67.1,1.0.0)`，下限表示所需的最低框架基础版本，忽略 beta/nightly/SNAPSHOT 后缀。运行时版本来源和升级同步命令见[插件 API 兼容性](../../compatibility/plugin-api.md)。
+插件 SDK API 范围为 `[0.67.0,1.0.0)`，下限表示所需的最低框架基础版本，忽略 beta/nightly/SNAPSHOT 后缀。运行时版本来源和升级同步命令见[插件 API 兼容性](../../compatibility/plugin-api.md)。
 
+
+插件生命周期、线程、设置、存储、权限和测试见[插件作者指南（英文）](../../sdk/plugin-author-guide.md)。
+独立模板仓库请访问 [Turboism 仓库中的指南](https://github.com/turboism/Turboism/blob/main/sdk/plugin-author-guide.md)。
 
 ## 环境要求
 
