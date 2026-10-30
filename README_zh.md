@@ -7,6 +7,9 @@
 插件 SDK API 范围为 `[0.67.0,1.0.0)`，下限表示所需的最低框架基础版本，忽略 beta/nightly/SNAPSHOT 后缀。运行时版本来源和升级同步命令见[插件 API 兼容性](../../compatibility/plugin-api.md)。
 
 
+插件生命周期、线程、设置、存储、权限和测试见[插件作者指南（英文）](../../sdk/plugin-author-guide.md)。
+独立模板仓库请访问 [Turboism 仓库中的指南](https://github.com/turboism/Turboism/blob/main/sdk/plugin-author-guide.md)。
+
 ## 环境要求
 
 - **JDK 17**（或更高版本 —— 编译目标为 Java 17 字节码）
@@ -61,7 +64,7 @@
 
 - **稳定版渠道（默认）**：`./scripts/setup.sh --channel stable`
 - **测试版渠道（Beta）**：`./scripts/setup.sh --channel beta`
-- **指定版本**：`./scripts/setup.sh --version 0.67.0-beta.2`
+- **指定版本**：`./scripts/setup.sh --version 0.67.4`
 
 选定的版本号会写入 `gradle.properties` 的 `turboismSdkVersion`，校验通过的 JAR 放入 `libs/`。若所选版本早于独立 SDK 分发阶段（不含 `turboism-sdk-<version>.jar`），脚本会给出明确提示（改用 `--channel beta` 或 `--version <含 SDK 的版本>`）；若所选版本仅含 SDK 而不含 `turboism-event-processor-<version>.jar`，脚本会打印警告并仅配置 SDK 编译（此时请使用 `EventBus#subscribe`）。脚本具有幂等性，重复运行会安全替换旧版本 JAR 并就地更新包名、类名和描述文件。
 

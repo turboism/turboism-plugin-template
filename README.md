@@ -10,6 +10,10 @@ and build a single plugin JAR ready for any Turboism installation.
 The plugin SDK API range is `[0.67.0,1.0.0)`: its lower bound is the minimum framework base version, with beta/nightly/SNAPSHOT suffixes ignored. See [plugin API compatibility](../../compatibility/plugin-api.md) for the runtime version source and release synchronization command.
 
 
+See the [plugin author guide](../../sdk/plugin-author-guide.md) for lifecycle,
+threading, settings, storage, permissions and testing. In the standalone template
+repository, read it in the [Turboism repository](https://github.com/turboism/Turboism/blob/main/sdk/plugin-author-guide.md).
+
 ## Prerequisites
 
 - **JDK 17** (or newer — the plugin is compiled for Java 17 bytecode)
@@ -76,7 +80,7 @@ GitHub Releases API (`https://api.github.com/repos/turboism/Turboism/releases`):
 
 - **Stable channel (default)**: `./scripts/setup.sh --channel stable`
 - **Beta channel**: `./scripts/setup.sh --channel beta`
-- **Pinned version**: `./scripts/setup.sh --version 0.67.0-beta.2`
+- **Pinned version**: `./scripts/setup.sh --version 0.67.4`
 
 The chosen version is recorded in `gradle.properties` (`turboismSdkVersion`),
 and the verified JARs are placed in `libs/`. Re-running the setup script is
