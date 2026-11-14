@@ -1,18 +1,15 @@
 # Turboism Plugin Template
 
-[EN / English](README.md) · [ZH / 简体中文](README_zh.md)
+[English](README.md) / [简体中文](README.zh-CN.md)
 
 A standalone Gradle project for building a Turboism plugin **without cloning or
 building the Turboism monorepo**. Run one setup script to fetch and verify the
 SDK and `@SubscribeEvent` annotation processor, customize your plugin identity,
 and build a single plugin JAR ready for any Turboism installation.
 
-The plugin SDK API range is `[0.67.0,1.0.0)`: its lower bound is the minimum framework base version, with beta/nightly/SNAPSHOT suffixes ignored. See [plugin API compatibility](../../compatibility/plugin-api.md) for the runtime version source and release synchronization command.
+The plugin SDK API range is `[0.67.0,1.0.0)`: its lower bound is the minimum framework base version, with beta/nightly/SNAPSHOT suffixes ignored. See [plugin API compatibility](https://github.com/turboism/Turboism/blob/main/compatibility/plugin-api.md) for the runtime version source and compatibility policy.
 
-
-See the [plugin author guide](../../sdk/plugin-author-guide.md) for lifecycle,
-threading, settings, storage, permissions and testing. In the standalone template
-repository, read it in the [Turboism repository](https://github.com/turboism/Turboism/blob/main/sdk/plugin-author-guide.md).
+See the [plugin author guide](https://github.com/turboism/Turboism/blob/main/sdk/plugin-author-guide.md) for lifecycle, threading, settings, storage, permissions and testing.
 
 ## Prerequisites
 
@@ -57,14 +54,16 @@ repository, read it in the [Turboism repository](https://github.com/turboism/Tur
    .\scripts\setup.ps1 -Channel stable -Id com.example.myplugin -Name "My Plugin" -Package com.example.myplugin -Author "Ada Lovelace" -Yes
    ```
 
-3. **Build the plugin JAR**:
+3. **Test and build the plugin JAR**:
 
    ```bash
    ./gradlew build        # or .\gradlew.bat build on Windows
    ```
 
-   The packaged plugin JAR is written to `build/libs/<slug>-turboism-plugin-0.1.0.jar`
-   (by default `build/libs/hello-turboism-plugin-0.1.0.jar`).
+   `build` runs JUnit 5 unit tests (`./gradlew test`) and writes the packaged
+   plugin JAR to `build/libs/<slug>-turboism-plugin-0.1.0.jar` (by default
+   `build/libs/hello-turboism-plugin-0.1.0.jar`). The setup script renames both
+   the main plugin source and its matching `*Test.java` under `src/test/java`.
 
 4. **Install into Turboism** — copy the built JAR into the `plugins/` folder of
    your Turboism installation, enable it under **Plugin Management**, and
@@ -80,7 +79,7 @@ GitHub Releases API (`https://api.github.com/repos/turboism/Turboism/releases`):
 
 - **Stable channel (default)**: `./scripts/setup.sh --channel stable`
 - **Beta channel**: `./scripts/setup.sh --channel beta`
-- **Pinned version**: `./scripts/setup.sh --version 0.67.0-beta.2`
+- **Pinned version**: `./scripts/setup.sh --version 0.67.4`
 
 The chosen version is recorded in `gradle.properties` (`turboismSdkVersion`),
 and the verified JARs are placed in `libs/`. Re-running the setup script is
@@ -123,7 +122,7 @@ SDK API declares the versions it supports with `@CubismEditor` — an exact
 `value` list admits only the named reviewed versions, `from`/`to` ranges can
 also satisfy unreviewed compatibility-admitted hosts, and `exclude` always
 removes a version. The full per-API matrix is generated into
-`compatibility/cubism/compatibility-matrix.json` (developer view:
+`build/generated/compatibility/cubism/compatibility-matrix.json` (developer view:
 `compatibility/cubism/capabilities.md`) in the Turboism repository.
 
 Query availability instead of assuming it:
@@ -204,15 +203,17 @@ Both subscription styles work out of the box:
 
 ## For template maintainers
 
-`templates/plugin-template/` in [`turboism/Turboism`](https://github.com/turboism/Turboism)
-is the single source of truth for this template. The standalone repository
-`turboism/turboism-plugin-template` syncs from public Turboism release tags via
-`.github/workflows/sync-from-turboism.yml` (scheduled daily and runnable on
-demand via `workflow_dispatch`):
+`turboism/turboism-plugin-template` is the standalone source of truth for both
+community plugins and standalone first-party plugins.
 
-1. Resolves the latest `stable` and `beta` release tags from the Turboism
-   release API / GitHub Releases API.
-2. Fetches `templates/plugin-template/` at that tag from the public
-   `turboism/Turboism` repository (no cross-repo token or secret needed).
-3. Replaces the template repository working tree (preserving `.git`), commits
-   if changed, and tags `sdk-<version>`.
+Default SDK and reviewed Cubism Editor version metadata are kept in sync with
+[`turboism/Turboism`](https://github.com/turboism/Turboism) releases via
+`.github/workflows/sync-sdk-version.yml` (scheduled daily and runnable on demand
+via `workflow_dispatch`):
+
+1. Resolves the latest `stable` (or requested `beta`/tag) release from the
+   Turboism release API / GitHub Releases API.
+2. Updates `turboismSdkVersion` in `gradle.properties` and the version lists in
+   `src/main/resources/META-INF/turboism/cubism-versions.json` when a newer
+   release is published.
+3. Opens a pull request against `main` without overwriting template source files.

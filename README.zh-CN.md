@@ -1,14 +1,12 @@
 # Turboism 插件模板
 
-[EN / English](README.md) · [ZH / 简体中文](README_zh.md)
+[English](README.md) / [简体中文](README.zh-CN.md)
 
 用于构建 Turboism 插件的独立 Gradle 工程模板，**无需克隆或编译 Turboism 主仓库**。只需运行一次初始化脚本即可自动下载并校验 SDK 与 `@SubscribeEvent` 注解处理器、配置插件元数据，并打包出可直接放入 Turboism 安装目录的插件 JAR。
 
-插件 SDK API 范围为 `[0.67.0,1.0.0)`，下限表示所需的最低框架基础版本，忽略 beta/nightly/SNAPSHOT 后缀。运行时版本来源和升级同步命令见[插件 API 兼容性](../../compatibility/plugin-api.md)。
+插件 SDK API 范围为 `[0.67.0,1.0.0)`，下限表示所需的最低框架基础版本，忽略 beta/nightly/SNAPSHOT 后缀。运行时版本来源与兼容策略见[插件 API 兼容性](https://github.com/turboism/Turboism/blob/main/compatibility/plugin-api.md)。
 
-
-插件生命周期、线程、设置、存储、权限和测试见[插件作者指南（英文）](../../sdk/plugin-author-guide.md)。
-独立模板仓库请访问 [Turboism 仓库中的指南](https://github.com/turboism/Turboism/blob/main/sdk/plugin-author-guide.md)。
+插件生命周期、线程、设置、存储、权限和测试规范见[插件作者指南（英文）](https://github.com/turboism/Turboism/blob/main/sdk/plugin-author-guide.md)。
 
 ## 环境要求
 
@@ -48,13 +46,13 @@
    .\scripts\setup.ps1 -Channel stable -Id com.example.myplugin -Name "My Plugin" -Package com.example.myplugin -Author "Ada Lovelace" -Yes
    ```
 
-3. **构建插件 JAR**：
+3. **运行测试并构建插件 JAR**：
 
    ```bash
    ./gradlew build        # Windows 下使用 .\gradlew.bat build
    ```
 
-   构建产物位于 `build/libs/<slug>-turboism-plugin-0.1.0.jar`（默认为 `build/libs/hello-turboism-plugin-0.1.0.jar`）。
+   `build` 会执行 JUnit 5 单元测试（`./gradlew test`），并将构建产物输出到 `build/libs/<slug>-turboism-plugin-0.1.0.jar`（默认为 `build/libs/hello-turboism-plugin-0.1.0.jar`）。运行 `setup.sh` / `setup.ps1` 时会同步重命名 `src/test/java` 下对应的 `*Test.java`。
 
 4. **安装插件** —— 将生成的 JAR 复制到 Turboism 安装目录下的 `plugins/` 文件夹，在“插件管理”中启用并重启即可。
 
@@ -64,7 +62,7 @@
 
 - **稳定版渠道（默认）**：`./scripts/setup.sh --channel stable`
 - **测试版渠道（Beta）**：`./scripts/setup.sh --channel beta`
-- **指定版本**：`./scripts/setup.sh --version 0.67.0-beta.2`
+- **指定版本**：`./scripts/setup.sh --version 0.67.4`
 
 选定的版本号会写入 `gradle.properties` 的 `turboismSdkVersion`，校验通过的 JAR 放入 `libs/`。若所选版本早于独立 SDK 分发阶段（不含 `turboism-sdk-<version>.jar`），脚本会给出明确提示（改用 `--channel beta` 或 `--version <含 SDK 的版本>`）；若所选版本仅含 SDK 而不含 `turboism-event-processor-<version>.jar`，脚本会打印警告并仅配置 SDK 编译（此时请使用 `EventBus#subscribe`）。脚本具有幂等性，重复运行会安全替换旧版本 JAR 并就地更新包名、类名和描述文件。
 
@@ -80,4 +78,6 @@
 
 ## 模板维护说明
 
-[`turboism/Turboism`](https://github.com/turboism/Turboism) 仓库中的 `templates/plugin-template/` 是唯一权威源。独立模板仓库 `turboism/turboism-plugin-template` 通过 `.github/workflows/sync-from-turboism.yml` 定时或手动从公开的 Turboism 发布标签同步内容，并在变更时自动提交及创建 `sdk-<version>` 标签（无需跨仓库密钥）。
+`turboism/turboism-plugin-template` 是插件模板的独立权威源，同时服务于社区插件与独立仓库形态的第一方插件。
+
+默认 SDK 版本与已审核 Cubism Editor 版本列表通过 `.github/workflows/sync-sdk-version.yml`（每日定时及手动 `workflow_dispatch`）跟踪 [`turboism/Turboism`](https://github.com/turboism/Turboism) 发布：发现新版本时仅更新 `gradle.properties` 中的 `turboismSdkVersion` 与 `src/main/resources/META-INF/turboism/cubism-versions.json`，并自动发起 Pull Request，不会覆盖模板源码。

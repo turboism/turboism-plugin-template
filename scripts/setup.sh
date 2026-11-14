@@ -732,6 +732,38 @@ if old_java_file.resolve() != new_java_file.resolve():
         parent.rmdir()
         parent = parent.parent
 
+test_root = root / "src/test/java"
+old_test_file = test_root / cur_pkg.replace(".", "/") / f"{cur_cls}Test.java"
+new_test_file = test_root / new_pkg.replace(".", "/") / f"{new_cls}Test.java"
+if not old_test_file.is_file() and new_test_file.is_file():
+    old_test_file = new_test_file
+if old_test_file.is_file():
+    test_text = old_test_file.read_text(encoding="utf-8")
+    test_text = re.sub(
+        r"(?m)^package\s+[A-Za-z0-9_.]+\s*;",
+        f"package {new_pkg};",
+        test_text,
+        count=1,
+    )
+    test_text = re.sub(
+        rf"\b{re.escape(cur_cls)}Test\b",
+        f"{new_cls}Test",
+        test_text,
+    )
+    test_text = re.sub(
+        rf"\b{re.escape(cur_cls)}\b",
+        new_cls,
+        test_text,
+    )
+    new_test_file.parent.mkdir(parents=True, exist_ok=True)
+    new_test_file.write_text(test_text, encoding="utf-8")
+    if old_test_file.resolve() != new_test_file.resolve():
+        old_test_file.unlink()
+        parent = old_test_file.parent
+        while parent != test_root and parent.is_dir() and not any(parent.iterdir()):
+            parent.rmdir()
+            parent = parent.parent
+
 # Update plugin.json
 plugin_json_path = root / "src/main/resources/META-INF/turboism/plugin.json"
 plugin_data = json.loads(plugin_json_path.read_text(encoding="utf-8"))
