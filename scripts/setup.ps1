@@ -489,6 +489,29 @@ try {
         }
     }
 
+    $TestRoot = Join-Path $ProjectRoot 'src/test/java'
+    $OldTestFile = Join-Path $TestRoot (($CurPackage -replace '\.', '/') + "/${CurClass}Test.java")
+    $NewTestFile = Join-Path $TestRoot (($Package -replace '\.', '/') + "/${ClassName}Test.java")
+    if (-not (Test-Path -LiteralPath $OldTestFile) -and (Test-Path -LiteralPath $NewTestFile)) {
+        $OldTestFile = $NewTestFile
+    }
+    if (Test-Path -LiteralPath $OldTestFile) {
+        $testText = [System.IO.File]::ReadAllText($OldTestFile, $Utf8NoBom)
+        $testText = [regex]::Replace($testText, '(?m)^package\s+[A-Za-z0-9_.]+\s*;', "package $Package;", 1)
+        $testText = [regex]::Replace($testText, "\b$([regex]::Escape($CurClass))Test\b", "${ClassName}Test")
+        $testText = [regex]::Replace($testText, "\b$([regex]::Escape($CurClass))\b", $ClassName)
+        [void][System.IO.Directory]::CreateDirectory([System.IO.Path]::GetDirectoryName($NewTestFile))
+        [System.IO.File]::WriteAllText($NewTestFile, $testText, $Utf8NoBom)
+        if ([System.IO.Path]::GetFullPath($OldTestFile) -cne [System.IO.Path]::GetFullPath($NewTestFile)) {
+            Remove-Item -LiteralPath $OldTestFile -Force
+            $parent = [System.IO.Path]::GetDirectoryName($OldTestFile)
+            while ($parent -cne [System.IO.Path]::GetFullPath($TestRoot) -and (Test-Path -LiteralPath $parent) -and (Get-ChildItem -LiteralPath $parent -Force).Count -eq 0) {
+                Remove-Item -LiteralPath $parent -Force
+                $parent = [System.IO.Path]::GetDirectoryName($parent)
+            }
+        }
+    }
+
     $CurrentMeta.id = $Id
     $CurrentMeta.name = $Name
     $CurrentMeta.entrypoints = @("$Package.$ClassName")

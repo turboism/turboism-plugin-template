@@ -12,12 +12,13 @@ java {
 
 repositories {
     mavenLocal()
+    mavenCentral()
 }
 
 // SDK and annotation-processor resolution:
 // - When libs/ holds turboism-sdk-*.jar (placed by scripts/setup.sh or scripts/setup.ps1),
-//   it is used directly as compileOnly, and turboism-event-processor-*.jar in libs/
-//   is wired as annotationProcessor (with sdkJars for processor contract types).
+//   it is used directly as compileOnly and testImplementation, and
+//   turboism-event-processor-*.jar in libs/ is wired as annotationProcessor.
 // - Otherwise, dev.turboism:sdk and dev.turboism:event-processor are resolved from
 //   mavenLocal() using turboismSdkVersion in gradle.properties.
 val sdkJars = fileTree("libs") { include("turboism-sdk-*.jar") }
@@ -36,6 +37,7 @@ dependencies {
             )
         }
         compileOnly("dev.turboism:sdk:$turboismSdkVersion")
+        testImplementation("dev.turboism:sdk:$turboismSdkVersion")
         if (eventProcessorJars.isEmpty) {
             annotationProcessor("dev.turboism:event-processor:$turboismSdkVersion")
         } else {
@@ -44,11 +46,20 @@ dependencies {
         }
     } else {
         compileOnly(sdkJars)
+        testImplementation(sdkJars)
         if (!eventProcessorJars.isEmpty) {
             annotationProcessor(eventProcessorJars)
             annotationProcessor(sdkJars)
         }
     }
+
+    testImplementation(platform("org.junit:junit-bom:5.10.3"))
+    testImplementation("org.junit.jupiter:junit-jupiter")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+}
+
+tasks.test {
+    useJUnitPlatform()
 }
 
 tasks.jar {
